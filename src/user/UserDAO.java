@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class UserDAO {
+	
 	private Connection conn;
 	private PreparedStatement pstmt;
 	private ResultSet rs;
@@ -16,7 +17,7 @@ public class UserDAO {
 			String dbID = "root";
 			String dbPassword = "1234";
 			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
+			conn = DriverManager.getConnection(dbURL,dbID,dbPassword);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -24,29 +25,28 @@ public class UserDAO {
 	}
 	
 	public int login(String userID, String userPW) {
-		String SQL = "SELECT userPW FROM user WHERE userID = ?";
+		String SQL = "Select userPW from user where userID = ?";
 		try {
-			pstmt = conn.prepareStatement(SQL); //?에 관한 값을 받기 전에 쿼리문 준비
-			pstmt.setString(1, userID); //?에 들어갈 String을 넣어 쿼리문을 완성
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, userID);
 			rs = pstmt.executeQuery();
 			System.out.println(SQL);
-			
 			if(rs.next()) {
-				if(rs.getString(1).equals(userPW)) { //사용자의 PW와 디비의 PW확인
-					return 1; //로그인 성공
+				if(rs.getString(1).equals(userPW)) {
+					return 1;// 로그인 성공
 				}else 
-					return 0; //비밀번호 불일치 
+					return 0;//비밀번호 불일치
 			}
-					return -1; //없는 아이디
+					return -1; // 아이디가 없음
+			
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
-		return -2; // 데이터베이스 오류 
+		}		
+		return -2; // 데이터베이스 오류		
 	}
 	
 	public int join(User user) {
-		String SQL = "INSERT INTO USER VALUES (?, ?, ?, ?, ?)";
+		String SQL = "INSERT INTO USER VALUES(?,?,?,?,?)";
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, user.getUserID());
@@ -55,13 +55,22 @@ public class UserDAO {
 			pstmt.setString(4, user.getUserGender());
 			pstmt.setString(5, user.getUserEmail());
 			System.out.println(SQL);
-			
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 		return -1;
 		
 	}
 }
+
+
+
+
+
+
+
+
+
+
+

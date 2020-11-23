@@ -1,9 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.io.PrintWriter"%>
-<%@ page import="jbs.JbsDAO"%>
 <%@ page import="jbs.Jbs"%>
-<%@ page import="java.util.ArrayList"%>
+<%@ page import="jbs.JbsDAO"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,10 +18,26 @@
 	if (session.getAttribute("userID") != null) {
 		userID = (String) session.getAttribute("userID");
 	}
-	int pageNumber = 1;
-	if (request.getParameter("pageNumber") != null) {
-		pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+	if(userID == null){
+		PrintWriter script = response.getWriter();
+		script.println("<script>");
+		script.println("alert('로그인이 필요합니다.')");
+		script.println("location.href = 'login.jsp'");
+		script.println("</script>");
+		
 	}
+	int jbsID = 0;
+	if(request.getParameter("jbsID") != null){
+		jbsID = Integer.parseInt(request.getParameter("jbsID"));
+	}
+	if(jbsID == 0){
+		PrintWriter script = response.getWriter();
+		script.println("<script>");
+		script.println("alert('유효하지 않은 글입니다.')");
+		script.println("location.href = 'jbs.jsp'");
+		script.println("</script>");
+	}
+	Jbs jbs = new JbsDAO().getJbs(jbsID);
 	%>
 	<nav class="navbar navbar-default">
 		<div class="navbar-header">
@@ -40,9 +55,8 @@
 				<li><a href="main.jsp">메인</a></li>
 				<li class="active"><a href="jbs.jsp">게시판</a></li>
 			</ul>
-
 			<%
-				if(userID == null){
+				if (userID == null) {
 			%>
 			<ul class="nav navbar-nav navbar-right">
 				<li class="dropdown"><a href="#" class="dropdown-toggle"
@@ -54,14 +68,14 @@
 					</ul>
 			</ul>
 			<%
-				}else{
+				} else {
 			%>
 			<ul class="nav navbar-nav navbar-right">
 				<li class="dropdown"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown" role="button" aria-haspopup="true"
 					aria-expanded="false">회원관리<span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="logoutAction.jsp">로그아웃</a></li>
+						<li><a href="logoutAction.jsp">로그아웃</a>
 					</ul>
 			</ul>
 			<%
@@ -69,58 +83,44 @@
 			%>
 		</div>
 	</nav>
-
 	<div class="container">
 		<div class="row">
-			<table class="table table-striped"
-				style="text-align: center; border: 1px solid #dddddd">
-				<thead>
-					<tr>
-						<th style="background-color: #eeeeee; text-align: center">번호</th>
-						<th style="background-color: #eeeeee; text-align: center">제목</th>
-						<th style="background-color: #eeeeee; text-align: center">작성자</th>
-						<th style="background-color: #eeeeee; text-align: center">작성일</th>
-					</tr>
-				</thead>
-				<tbody>
-					<%
-					JbsDAO jbsDAO = new JbsDAO();
-					ArrayList<Jbs> list = jbsDAO.getList(pageNumber);
-					for(int i = 0; i<list.size(); i++){				
-					%>
-					<tr>
-						<td><%= list.get(i).getJbsID() %></td>
-						<td><a href="view.jsp?jbsID=<%= list.get(i).getJbsID() %>"><%= list.get(i).getJbsTitle().replaceAll(" ", "&nbsp;").replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>") %></a></td>
-						<td><%= list.get(i).getUserID() %></td>
-						<td><%= list.get(i).getJbsDate().substring(0,11) + list.get(i).getJbsDate().substring(11,13)+ "시"+ list.get(i).getJbsDate().substring(14,16)+"분" %></td>
-					</tr>
-				<%
-					}
-				%>
-				</tbody>
-
-			</table>
-			<%
-				if(pageNumber != 1){			
-			%>
-				<a href="jbs.jsp?pageNumber=<%= pageNumber - 1 %>"
-				 class="btn btn-success btn-arraw-left">이전</a>
-			<%
-				}if(jbsDAO.nextPage(pageNumber + 1)){
-			%>
-				<a href="jbs.jsp?pageNumber=<%= pageNumber + 1 %>"
-				 class="btn btn-success btn-arraw-left">다음</a>
-			<%
-				}
-			%>
-			<a href="write.jsp" class="btn btn-primary pull-right">글쓰기</a>
-
+			<form method="post" action="updateAction.jsp?jbsID=<%= jbsID%>">
+				<table class="table table-striped"
+					style="text-align: center; border: 1px solid #dddddd">
+					<thead>
+						<tr>
+							<th colspan="3"
+								style="background-color: #eeeeee; text-align: center">게시판 글
+								수정</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><input type="text" class="form-control"
+								placeholder="글 제목" name="jbsTitle" maxlength="50"
+								value="<%=jbs.getJbsTitle()%>"></td>
+						</tr>
+						<tr>
+							<td><textarea class="form-control" placeholder="글 내용"
+									name="jbsContent" maxlength="2048" style="height: 350px;"><%=jbs.getJbsContent()%></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<input type="submit" class="btn btn-primary pull-right" value="글수정">
+			</form>
 		</div>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="js/bootstrap.js"></script>
+
 </body>
 </html>
+
+
+
+
 
 
 
